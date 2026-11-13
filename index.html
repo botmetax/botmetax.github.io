@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Jurnal Trading RSIWPR Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--ink:#17233b;--mut:#6b778c;--bg:#f3f5f8;--pan:#fff;--ln:#dde3ec;--pos:#0e9f8e;--neg:#d64560;--acc:#3b5bdb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Figtree,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1280px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px}
+h1{font-size:22px;font-weight:800;margin:0;letter-spacing:-.01em}
+h1 small{display:block;font-size:12.5px;font-weight:500;color:var(--mut);letter-spacing:0}
+h2{font-size:14px;margin:0 0 10px;font-weight:700}
+.panel{background:var(--pan);border:1px solid var(--ln);border-radius:10px;padding:14px}
+.conn{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:#b8c1d0}.dot.on{background:var(--pos)}.dot.err{background:var(--neg)}
+input,select,button{font:inherit;color:inherit;border:1px solid var(--ln);background:#fff;border-radius:7px;padding:6px 9px}
+button{cursor:pointer;font-weight:600}button:hover{border-color:var(--acc)}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.bar .sp{flex:1}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--pan);border:1px solid var(--ln);border-radius:10px;padding:10px 12px}
+.kpi span{display:block;font-size:12px;color:var(--mut)}
+.kpi b{font-size:20px;font-weight:800}
+.kpi.main{background:var(--ink);color:#fff;border-color:var(--ink)}.kpi.main span{color:#aab6cc}
+.pos{color:var(--pos)}.neg{color:var(--neg)}.kpi.main .pos{color:#4fe3cf}.kpi.main .neg{color:#ff8aa0}
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:900px){.grid,.grid2{grid-template-columns:1fr}}
+.calhead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.calhead h2{margin:0;flex:1}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) 78px;gap:4px}
+.dn{font-size:12px;color:var(--mut);text-align:center;font-weight:600}
+.c{min-height:66px;border-radius:7px;padding:5px 6px;background:#f6f8fb;border:1px solid transparent;display:flex;flex-direction:column;justify-content:space-between;text-align:left}
+.c i{font-style:normal;font-size:11px;opacity:.75}
+.c b{font-size:13px;font-weight:700}
+.c.e{background:transparent}.c.z{cursor:default}
+.c.sel{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.c.w{background:transparent;border:1px dashed var(--ln);justify-content:center;align-items:flex-end;text-align:right}
+.ch{position:relative;height:250px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--ln);text-align:right;white-space:nowrap}
+th{color:var(--mut);font-weight:600}th:first-child,td:first-child{text-align:left}
+.scroll{overflow-x:auto}
+.msg{padding:10px 12px;border-radius:8px;background:#fff4f6;border:1px solid #f3c3cc;color:#8d2236;margin-bottom:14px;display:none}
+.mut{color:var(--mut)}
+.presets,.dates,.sels{display:contents}
+.tall{height:330px}
+button,.c{-webkit-tap-highlight-color:transparent}
+@media(max-width:600px){
+ .wrap{padding:10px 10px calc(14px + env(safe-area-inset-bottom))}
+ header{margin-bottom:10px}h1{font-size:19px}
+ .conn{width:100%;flex-wrap:nowrap}.conn input{flex:1;min-width:0}
+ input,select{font-size:16px}
+ .panel{padding:10px}
+ .bar{flex-direction:column;align-items:stretch;gap:6px}.bar .sp{display:none}
+ .presets{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+ .presets button{flex:none;white-space:nowrap;min-height:38px}
+ .dates{display:flex;gap:6px;align-items:center}.dates input{flex:1;min-width:0}
+ .sels{display:grid;grid-template-columns:1fr 1fr;gap:6px}.sels #magic{grid-column:1/-1}
+ .kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi.main{grid-column:1/-1}
+ .kpi b{font-size:17px}.kpi.main b{font-size:24px}
+ .cal{grid-template-columns:repeat(7,minmax(0,1fr)) 50px;gap:3px}
+ .c{min-height:48px;padding:3px}.c b{font-size:10.5px;overflow-wrap:anywhere}.tn{display:none}
+ .ch{height:210px}.tall{height:230px}
+ .hm{display:none}th,td{padding:6px}
+ .calhead button{min-width:40px;min-height:38px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Jurnal Trading<small>EA RSIWPR_Grid · XAUUSD · waktu mengikuti server broker</small></h1>
+  <div class="conn">
+    <span class="dot" id="dot"></span>
+    <input id="api" size="30" placeholder="https://xxxx.ngrok-free.app">
+    <button class="pri" id="btnConn">Hubungkan</button>
+  </div>
+</header>
+<div class="msg" id="msg"></div>
+
+<div class="bar">
+  <div class="presets"><button data-p="today">Hari ini</button><button data-p="7">7 hari</button><button data-p="30">30 hari</button>
+  <button data-p="month">Bulan ini</button><button data-p="all" class="on">Semua</button></div>
+  <div class="dates"><input type="date" id="from" aria-label="Dari tanggal"><span class="mut">s/d</span><input type="date" id="to" aria-label="Sampai tanggal"></div>
+  <span class="sp"></span>
+  <div class="sels"><select id="sym" aria-label="Simbol"><option value="">Semua simbol</option></select>
+  <select id="side" aria-label="Arah"><option value="">BUY + SELL</option><option>BUY</option><option>SELL</option></select>
+  <select id="magic" aria-label="Sumber"><option value="ea">Hanya EA ini</option><option value="all">Semua posisi akun</option></select></div>
+</div>
+
+<section class="kpis" id="kpis"></section>
+
+<div class="grid">
+  <div class="panel">
+    <div class="calhead">
+      <h2 id="calTitle"></h2>
+      <button id="prev" aria-label="Bulan sebelumnya">‹</button><button id="next" aria-label="Bulan berikutnya">›</button>
+    </div>
+    <div class="cal" id="cal"></div>
+  </div>
+  <div class="panel"><h2>Kurva ekuitas (PNL kumulatif)</h2><div class="ch tall"><canvas id="cEq"></canvas></div></div>
+</div>
+
+<div class="grid2">
+  <div class="panel">
+    <div class="calhead"><h2>PNL per jam</h2>
+      <select id="hbasis"><option value="close_time">Jam tutup</option><option value="open_time">Jam buka</option></select></div>
+    <div class="ch"><canvas id="cHour"></canvas></div>
+  </div>
+  <div class="panel"><h2>PNL per hari dalam seminggu</h2><div class="ch"><canvas id="cDow"></canvas></div></div>
+</div>
+
+<div class="panel">
+  <h2 id="dtTitle">Detail transaksi</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Tutup</th><th>Arah</th><th>Lot</th><th class="hm">Harga buka</th><th class="hm">Harga tutup</th><th>Pts</th><th>PNL</th></tr></thead>
+    <tbody id="dt"></tbody></table></div>
+</div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const MON=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+const DOW=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+const money=n=>(n<0?'−':n>0?'+':'')+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const cls=n=>n>0?'pos':n<0?'neg':'';
+const small=()=>matchMedia('(max-width:600px)').matches;
+const mshort=n=>{const a=Math.abs(n);return(n<0?'−':n>0?'+':'')+(a>=1000?(a/1000).toFixed(1)+'k':a.toFixed(a>=100?0:1))};
+const mm=n=>small()?mshort(n):money(n);
+const POS='#0e9f8e',NEG='#d64560';
+// semua waktu = epoch server broker, dibaca dengan getter UTC agar tidak bergeser zona lokal
+const dkey=t=>new Date(t*1000).toISOString().slice(0,10);
+const hourOf=t=>new Date(t*1000).getUTCHours();
+const dowOf=t=>(new Date(t*1000).getUTCDay()+6)%7;
+const tstr=t=>new Date(t*1000).toISOString().slice(0,16).replace('T',' ');
+
+let ALL=[],F=[],D={},cm={y:0,m:0},selDay=null,charts={},preset='all';
+let API=(new URLSearchParams(location.search).get('api')||localStorage.getItem('journalApi')||'').replace(/\/$/,'');
+$('#api').value=API;
+
+function showMsg(t){const m=$('#msg');m.textContent=t;m.style.display=t?'block':'none'}
+
+async function load(){
+  if(!API){showMsg('Isi alamat ngrok lalu tekan Hubungkan.');return}
+  try{
+    const r=await fetch(API+'/api/trades?magic='+$('#magic').value,{headers:{'ngrok-skip-browser-warning':'1'}});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    ALL=j.trades;$('#dot').className='dot on';showMsg('');
+    const syms=[...new Set(ALL.map(t=>t.symbol))],cur=$('#sym').value;
+    $('#sym').innerHTML='<option value="">Semua simbol</option>'+syms.map(s=>`<option>${s}</option>`).join('');
+    $('#sym').value=syms.includes(cur)?cur:'';
+    applyPreset(preset,true);
+  }catch(e){
+    $('#dot').className='dot err';
+    showMsg('Gagal mengambil data ('+e.message+'). Pastikan mt5_journal_server.py dan ngrok sedang berjalan, lalu cek alamat ngrok.');
+  }
+}
+
+function applyPreset(p,keep){
+  preset=p;
+  document.querySelectorAll('[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===p));
+  const now=new Date(),today=now.toISOString().slice(0,10);
+  const last=ALL.length?dkey(ALL[ALL.length-1].close_time):today;
+  const base=last>today?last:today;
+  const back=n=>{const d=new Date(base+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-n);return d.toISOString().slice(0,10)};
+  let f='',t=base;
+  if(p==='today')f=base;
+  else if(p==='7')f=back(6);
+  else if(p==='30')f=back(29);
+  else if(p==='month')f=base.slice(0,8)+'01';
+  else{f=ALL.length?dkey(ALL[0].close_time):base;t=last}
+  $('#from').value=f;$('#to').value=t;
+  const[y,m]=t.split('-');cm={y:+y,m:+m-1};
+  selDay=null;render();
+}
+
+function render(){
+  const f=$('#from').value,t=$('#to').value,sym=$('#sym').value,side=$('#side').value;
+  F=ALL.filter(x=>{const k=dkey(x.close_time);return(!f||k>=f)&&(!t||k<=t)&&(!sym||x.symbol===sym)&&(!side||x.side===side)});
+  D={};F.forEach(x=>{const k=dkey(x.close_time);(D[k]=D[k]||{pnl:0,n:0,rows:[]});D[k].pnl+=x.profit;D[k].n++;D[k].rows.push(x)});
+  kpis();calendar();charts_();detail();
+}
+
+function kpis(){
+  const n=F.length,net=F.reduce((a,x)=>a+x.profit,0);
+  const w=F.filter(x=>x.profit>0),l=F.filter(x=>x.profit<0);
+  const gw=w.reduce((a,x)=>a+x.profit,0),gl=-l.reduce((a,x)=>a+x.profit,0);
+  const days=Object.entries(D).map(([k,v])=>[k,v.pnl]);
+  const best=days.length?days.reduce((a,b)=>b[1]>a[1]?b:a):null,worst=days.length?days.reduce((a,b)=>b[1]<a[1]?b:a):null;
+  let cum=0,peak=0,dd=0;F.forEach(x=>{cum+=x.profit;peak=Math.max(peak,cum);dd=Math.max(dd,peak-cum)});
+  const lots=F.reduce((a,x)=>a+x.lot,0);
+  const K=[
+    ['main','Net PNL',`<b class="${cls(net)}">${money(net)}</b>`],
+    ['','Win rate',`<b>${n?(w.length/n*100).toFixed(1):'0.0'}%</b>`],
+    ['','Profit factor',`<b>${gl?(gw/gl).toFixed(2):(gw?'∞':'–')}</b>`],
+    ['','Jumlah trade',`<b>${n}</b>`],
+    ['','Rata-rata menang',`<b class="pos">${w.length?money(gw/w.length):'–'}</b>`],
+    ['','Rata-rata kalah',`<b class="neg">${l.length?money(-gl/l.length):'–'}</b>`],
+    ['','Hari terbaik',`<b class="pos">${best?money(best[1]):'–'}</b>${best?`<span>${best[0]}</span>`:''}`],
+    ['','Hari terburuk',`<b class="neg">${worst?money(worst[1]):'–'}</b>${worst?`<span>${worst[0]}</span>`:''}`],
+    ['','Max drawdown',`<b class="neg">${dd?money(-dd):'–'}</b>`],
+    ['','Total lot',`<b>${lots.toFixed(2)}</b>`]];
+  $('#kpis').innerHTML=K.map(([c,a,b])=>`<div class="kpi ${c}"><span>${a}</span>${b}</div>`).join('');
+}
+
+function calendar(){
+  const{y,m}=cm,lead=(new Date(Date.UTC(y,m,1)).getUTCDay()+6)%7,dim=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+  const pre=`${y}-${String(m+1).padStart(2,'0')}-`;
+  let max=0,mt=0,mn=0;
+  for(let d=1;d<=dim;d++){const o=D[pre+String(d).padStart(2,'0')];if(o){max=Math.max(max,Math.abs(o.pnl));mt+=o.pnl;mn+=o.n}}
+  $('#calTitle').innerHTML=`${MON[m]} ${y} <span class="${cls(mt)}" style="font-weight:600;margin-left:8px">${mn?money(mt):''}</span>`;
+  let h=DOW.map(d=>`<div class="dn">${d}</div>`).join('')+'<div class="dn">Minggu</div>';
+  const cells=Math.ceil((lead+dim)/7)*7;let wk=0,wn=0;
+  for(let i=0;i<cells;i++){
+    if(i%7===0){wk=0;wn=0}
+    const d=i-lead+1;
+    if(d<1||d>dim)h+='<div class="c e"></div>';
+    else{
+      const k=pre+String(d).padStart(2,'0'),o=D[k];
+      if(o){wk+=o.pnl;wn+=o.n;
+        const a=.14+.8*Math.abs(o.pnl)/(max||1),rgb=o.pnl>=0?'14,159,142':'214,69,96';
+        h+=`<button class="c${selDay===k?' sel':''}" data-d="${k}" style="background:rgba(${rgb},${a});color:${a>.55?'#fff':'#17233b'}"><i>${d}</i><b>${mm(o.pnl)}</b><i class="tn">${o.n} trade</i></button>`;
+      }else h+=`<div class="c z"><i>${d}</i></div>`;
+    }
+    if(i%7===6)h+=`<div class="c w"><b class="${cls(wk)}">${wn?mm(wk):''}</b><i class="tn">${wn?wn+' trade':''}</i></div>`;
+  }
+  $('#cal').innerHTML=h;
+}
+
+function mk(id,type,data,opts){
+  if(charts[id])charts[id].destroy();
+  charts[id]=new Chart($('#'+id),{type,data,options:Object.assign({responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{grid:{display:false}},y:{grid:{color:'#eef1f6'}}}},opts||{})});
+}
+function charts_(){
+  let c=0;const eq=F.map(x=>c+=x.profit);
+  mk('cEq','line',{labels:F.map(x=>tstr(x.close_time)),datasets:[{data:eq,borderColor:'#3b5bdb',borderWidth:2,pointRadius:0,fill:true,backgroundColor:'rgba(59,91,219,.08)',tension:.15}]},
+    {scales:{x:{display:false},y:{grid:{color:'#eef1f6'}}}});
+  const basis=$('#hbasis').value,H=Array(24).fill(0),W=Array(7).fill(0);
+  F.forEach(x=>{H[hourOf(x[basis])]+=x.profit;W[dowOf(x.close_time)]+=x.profit});
+  const col=a=>a.map(v=>v>=0?POS:NEG);
+  mk('cHour','bar',{labels:H.map((_,i)=>String(i).padStart(2,'0')),datasets:[{data:H.map(v=>+v.toFixed(2)),backgroundColor:col(H),borderRadius:3}]});
+  mk('cDow','bar',{labels:DOW,datasets:[{data:W.map(v=>+v.toFixed(2)),backgroundColor:col(W),borderRadius:3}]});
+}
+
+function detail(){
+  let rows=F,title='Transaksi terbaru (maks. 100)';
+  if(selDay&&D[selDay]){rows=D[selDay].rows;title='Transaksi '+selDay+' · '+money(D[selDay].pnl)}
+  else rows=F.slice(-100);
+  $('#dtTitle').textContent=title;
+  $('#dt').innerHTML=[...rows].reverse().map(x=>`<tr><td>${tstr(x.close_time)}</td><td class="${x.side==='BUY'?'pos':'neg'}">${x.side}</td><td>${x.lot.toFixed(2)}</td>
+    <td class="hm">${x.open_price.toFixed(2)}</td><td class="hm">${x.close_price.toFixed(2)}</td><td class="${cls(x.pts)}">${x.pts}</td><td class="${cls(x.profit)}">${money(x.profit)}</td></tr>`).join('')
+    ||'<tr><td colspan="7" class="mut">Belum ada transaksi pada rentang ini.</td></tr>';
+}
+
+$('#cal').addEventListener('click',e=>{const b=e.target.closest('[data-d]');if(!b)return;selDay=selDay===b.dataset.d?null:b.dataset.d;calendar();detail();if(small()&&selDay)$('#dtTitle').scrollIntoView({behavior:'smooth',block:'start'})});
+matchMedia('(max-width:600px)').addEventListener('change',()=>{calendar();charts_()});
+$('#prev').onclick=()=>{cm.m--;if(cm.m<0){cm.m=11;cm.y--}calendar()};
+$('#next').onclick=()=>{cm.m++;if(cm.m>11){cm.m=0;cm.y++}calendar()};
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>applyPreset(b.dataset.p));
+['from','to','sym','side','hbasis'].forEach(id=>$('#'+id).onchange=()=>{
+  if(id==='from'||id==='to'){document.querySelectorAll('[data-p]').forEach(b=>b.classList.remove('on'));preset='custom';
+    const[y,m]=$('#to').value.split('-');if(y)cm={y:+y,m:+m-1};selDay=null}
+  render()});
+$('#magic').onchange=load;
+$('#btnConn').onclick=()=>{API=$('#api').value.trim().replace(/\/$/,'');localStorage.setItem('journalApi',API);load()};
+load();setInterval(()=>{if(API)load()},30000);
+</script>
+</body>
+</html>
